@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "PpordenApplication",
+            "request": "launch",
+            "mainClass": "com.duoc.pporden.PpordenApplication",
+            "projectName": ""
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-BackendApiApplication<backend-api>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "jar.BackendApiApplication",
+            "projectName": "backend-api",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
