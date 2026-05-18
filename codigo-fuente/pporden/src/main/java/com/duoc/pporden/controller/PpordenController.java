@@ -6,6 +6,19 @@ import com.duoc.pporden.service.PpordenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import com.duoc.pporden.dto.UsuarioDTO;
+import com.duoc.pporden.dto.ProductoDTO;
+import com.duoc.pporden.dto.StandDTO;
+import com.duoc.pporden.dto.EventoDTO;
+
+import com.duoc.pporden.dto.PpordenDTO;
+import com.duoc.pporden.dto.PedidoItemDTO;
+import com.duoc.pporden.dto.PpordenCreateDTO;
+
 import java.util.List;
 
 @RestController
@@ -66,5 +79,46 @@ public class PpordenController {
     public String eliminarPedido(@PathVariable Long id) {
         ppordenService.eliminarPedido(id);
         return "Pedido eliminado correctamente";
-}
+    }
+    //POST con dto
+    @PostMapping
+    public ResponseEntity<PpordenDTO> crearPedido(
+        @Valid @RequestBody PpordenCreateDTO dto) {
+
+    PpordenDTO creado = ppordenService.crearPedido(dto);
+
+    return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(creado);
+    }
+
+    //GET con dto
+    @GetMapping("/{id}")
+    public ResponseEntity<PpordenDTO> obtenerPedido(@PathVariable Long id) {
+
+    return ResponseEntity.ok(
+            ppordenService.obtenerPedidoDTO(id)
+    );
+    }
+
+    //
+    @GetMapping("/api/v2/usuarios")
+    public UsuarioDTO probarUsuario(@PathVariable Long id) {
+        return ppordenService.obtenerUsuario(id);
+    }
+
+    @GetMapping("/api/v2/productos")
+        public ProductoDTO probarProducto(@PathVariable Long id) {
+    return ppordenService.obtenerProducto(id);
+    }
+
+    @GetMapping("/api/v2/eventos")
+        public EventoDTO probarEvento(@PathVariable Long id) {
+    return ppordenService.obtenerEvento(id);
+    }
+
+
+
+
+
 }

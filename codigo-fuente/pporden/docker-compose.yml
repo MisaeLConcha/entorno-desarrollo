@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+
+  pporden-app:
+    image: microservicio-pporden:latest
+    container_name: entorno-desarrollo
+    ports:
+      - "8083:8083"
+    environment:
+      - USUARIO_URL=http://34.231.120.127:8081
+      - PRODUCTO_URL=http://34.231.120.127:8084
+      - EVENTOS_URL=http://34.231.120.127:8082
+      - STANDS_URL=http://34.231.120.127:8083
+      - NOTIFICACION_URL=http://100.52.12.161:8090
+      - PAGOS_URL=http://100.52.12.161:8087
+
+  db-servicio:
+    image: mysql:8.0
+    container_name: mysql_servidor_dockerorden
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: universidad_backend
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - persistencia_db:/var/lib/mysql
+
+  pporden:
+    image: misconcha/microservicio-pporden:v4-conchah
+    container_name: api_pporden
+    restart: always
+
+    ports:
+      - "8085:8085"
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-servicio:3306/universidad_backend
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+
+    depends_on:
+      - db-servicio
+
+volumes:
+  persistencia_db:

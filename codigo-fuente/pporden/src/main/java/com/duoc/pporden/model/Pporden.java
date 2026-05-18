@@ -34,6 +34,7 @@ public class Pporden {
     private String estado;
     private LocalDateTime fechaCreacion;
     private Long eventoId;
+    private Long usuarioId;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoItem> items= new ArrayList<>();
