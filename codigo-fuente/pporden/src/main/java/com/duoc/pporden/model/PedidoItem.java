@@ -12,9 +12,8 @@ public class PedidoItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombreProducto;
-    private int cantidad;
-    private double precio;
+    private Long idProducto;
+    private Integer cantidad;
 
     // Relación MANY TO ONE (muchos items pertenecen a un pedido)
     @ManyToOne

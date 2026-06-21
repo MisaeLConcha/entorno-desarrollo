@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface EventoClient {
 
 
-    @GetMapping("/api/v2/eventos")
+    @GetMapping("/api/v2/eventos/{id}")
     EventoDTO getEventoById(@PathVariable("id") Long id);
 }

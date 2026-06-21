@@ -1,6 +1,5 @@
 package com.duoc.pporden.model;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,8 +32,8 @@ public class Pporden {
     private String tipo;
     private String estado;
     private LocalDateTime fechaCreacion;
-    private Long eventoId;
-    private Long usuarioId;
+    private Long idEvento;
+    private Long idUsuario;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoItem> items= new ArrayList<>();

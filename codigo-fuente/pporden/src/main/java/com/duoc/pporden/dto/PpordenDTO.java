@@ -20,8 +20,11 @@ public class PpordenDTO {
 
     private LocalDateTime fechaCreacion;
 
-    private Long eventoId;
-    private Long usuarioId;
+    private Long idEvento;
+    private Long idUsuario;
+
+    private EventoDTO evento;
+    private UsuarioDTO usuario;
 
     private List<PedidoItemDTO> items;
 }

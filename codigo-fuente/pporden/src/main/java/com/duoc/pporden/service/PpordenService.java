@@ -140,11 +140,22 @@ public class PpordenService {
     }
 
     // validarEventoActivo()
-    public void validarEventoActivo(Long eventoId) {
-        if (eventoId == null || eventoId <= 0) { //mientras no tenemos eventos, es simulacion
-            throw new RuntimeException("Evento no válido o inactivo");
+    public EventoDTO validarEventoActivo(Long eventoId) {
+        try {
+            EventoDTO evento =
+            eventoClient.getEventoById(eventoId);
+                if(evento == null) {
+                    throw new RuntimeException(
+                        "Evento no encontrado"
+                    );
+                }
+                return evento;
+        } catch(Exception e) {
+            throw new RuntimeException(
+                "No existe el evento con id "
+                + eventoId
+            );
         }
-
     }
 
     //eliminar pedidini

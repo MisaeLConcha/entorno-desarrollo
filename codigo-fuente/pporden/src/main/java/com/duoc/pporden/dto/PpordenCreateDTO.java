@@ -18,8 +18,8 @@ public class PpordenCreateDTO {
     private String tipo;
 
     @NotNull(message = "El eventoId es obligatorio")
-    private Long eventoId;
+    private Long idEvento;
 
     @NotNull(message = "El usuarioId es obligatorio")
-    private Long usuarioId;
+    private Long idUsuario;
 }
