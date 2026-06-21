@@ -27,6 +27,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.duoc.pporden.exception.ResourceNotFoundException;
+import com.duoc.pporden.exception.BadRequestException;
+import com.duoc.pporden.exception.GlobalExceptionHandler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class PpordenService {
 
@@ -47,9 +54,14 @@ public class PpordenService {
     
     @Autowired
     private EventoClient eventoClient;
+
+    //incluir logger
+    private static final Logger log =
+        LoggerFactory.getLogger(PpordenService.class);
     
     //listar todo()
     public List<PpordenDTO> listarTodosDTO() {
+        log.info("Consultando listado completo de pedidos");
         return ppordenRepository.findAll()
             .stream()
             .map(this::convertirADTO)
@@ -57,12 +69,22 @@ public class PpordenService {
     }
     // crearPedido()
     public PpordenDTO crearPedido(PpordenCreateDTO dto) {
+        log.info(
+            "Creando pedido. Numero={}, Evento={}, Usuario={}",
+            dto.getNorden(),
+            dto.getIdEvento(),
+            dto.getIdUsuario()
+        );
         validarEventoActivo(dto.getIdEvento());
         UsuarioDTO usuario =
             usuarioClient.getUsuarioById(dto.getIdUsuario());
 
         if (usuario == null) {
-            throw new RuntimeException("Usuario no encontrado");
+            log.warn(
+                "Intento de crear pedido con usuario inexistente: {}",
+                dto.getIdUsuario()
+            );
+            throw new ResourceNotFoundException("Usuario no encontrado");
         }
 
         Pporden pedido = new Pporden();
@@ -75,15 +97,29 @@ public class PpordenService {
 
         Pporden guardado =
             ppordenRepository.save(pedido);
+            log.info(
+                "Pedido creado correctamente con id {}",
+                guardado.getId()
+            );
             return convertirADTO(guardado);
     }
 
     // agregarItemPedido()
     public PpordenDTO agregarItemPedido(Long pedidoId,PedidoItemCreateDTO dto) {
+        log.info(
+            "Agregando producto {} al pedido {}",
+            dto.getIdProducto(),
+            pedidoId
+        );
         Pporden pedido =
             obtenerPedidoPorId(pedidoId);
             
             if (!pedido.getEstado().equalsIgnoreCase("CREADO")) {
+                log.warn(
+                    "Intento de agregar item a pedido {} con estado {}",
+                    pedidoId,
+                    pedido.getEstado()
+                );
                 throw new RuntimeException(
                     "Solo se pueden agregar items a pedidos en estado CREADO");
             }
@@ -91,7 +127,11 @@ public class PpordenService {
             ProductoDTO producto =
                     productoClient.getProductoById(dto.getIdProducto());
             if (producto == null) {
-                throw new RuntimeException("Producto no encontrado");
+                log.warn(
+                    "Producto no encontrado. Id={}",
+                    dto.getIdProducto()
+                );
+                throw new ResourceNotFoundException("Producto no encontrado");
             }
 
             PedidoItem item = new PedidoItem();
@@ -101,11 +141,19 @@ public class PpordenService {
             pedidoItemRepository.save(item);
             pedido.getItems().add(item);
             ppordenRepository.save(pedido);
+            log.info(
+                "Producto agregado correctamente al pedido {}",
+                pedidoId
+            );
             return convertirADTO(pedido);
     }
 
     //obtener el pedido
     public PpordenDTO obtenerPedidoDTO(Long id) {
+        log.info(
+            "Consultando pedido con id={}",
+            id
+        );
         return convertirADTO(
             obtenerPedidoPorId(id)
         );
@@ -113,6 +161,10 @@ public class PpordenService {
 
     //obtener el evento x id
     public List<PpordenDTO> listarPedidosPorEventoDTO(Long idEvento) {
+        log.info(
+            "Consultando pedidos del evento {}",
+            idEvento
+        );
         return ppordenRepository
             .findByIdEvento(idEvento)
             .stream()
@@ -121,6 +173,11 @@ public class PpordenService {
     }
     //modificar el estado de la orden
     public PpordenDTO cambiarEstado(Long id,EstadoPedidoDTO dto) {
+        log.info(
+            "Cambiando estado del pedido {} a {}",
+            id,
+            dto.getEstado()
+        );
         Pporden pedido =
             obtenerPedidoPorId(id);
 
@@ -130,11 +187,20 @@ public class PpordenService {
 
         Pporden actualizado =
             ppordenRepository.save(pedido);
+            log.info(
+            "Estado actualizado correctamente para pedido {}",
+            id
+        );
         return convertirADTO(actualizado);
     }
 
     //eliminar items de la orden
     public PpordenDTO eliminarItemPedido(Long pedidoId,Long itemId) {
+        log.info(
+            "Eliminando item {} del pedido {}",
+            itemId,
+            pedidoId
+        );
         Pporden pedido =
             obtenerPedidoPorId(pedidoId);
 
@@ -146,11 +212,19 @@ public class PpordenService {
         pedido.getItems().remove(item);
         pedidoItemRepository.delete(item);
         ppordenRepository.save(pedido);
+        log.info(
+            "Item {} eliminado correctamente",
+            itemId
+        );
         return convertirADTO(pedido);
     }
 
     //eliminar la orden
     public void eliminarPedido(Long id) {
+        log.info(
+            "Eliminando pedido {}",
+            id
+        );
         Pporden pedido =
         obtenerPedidoPorId(id);
 
@@ -159,25 +233,32 @@ public class PpordenService {
 
         pedido.getItems().clear();
         ppordenRepository.delete(pedido);
+        log.info(
+        "Pedido {} eliminado correctamente",
+            id
+        );
     }
 
     //obtener por items
     public PedidoItemDTO obtenerItemDTO(Long itemId) {
         PedidoItem item =
             pedidoItemRepository.findById(itemId)
-                .orElseThrow(() ->
-                    new RuntimeException("Item no encontrado"));
-
-        ProductoDTO producto =
-                productoClient.getProductoById(
-                    item.getIdProducto()
+                .orElseThrow(() -> {
+                    log.warn(
+                    "Item no encontrado."
                 );
+                return new RuntimeException("Item no encontrado");
+                });
+        ProductoDTO producto =
+            productoClient.getProductoById(
+                item.getIdProducto()
+            );
 
         return new PedidoItemDTO(
-                item.getId(),
-                item.getIdProducto(),
-                producto,
-                item.getCantidad()
+            item.getId(),
+            item.getIdProducto(),
+            producto,
+            item.getCantidad()
         );
     }
     //obtener x feign usuarios
@@ -209,17 +290,30 @@ public class PpordenService {
 
     //que existan eventosm
     public void validarEventoActivo(Long idEvento) {
+        log.info(
+            "Validando evento {}",
+            idEvento
+        );
         EventoDTO evento =
             eventoClient.getEventoById(idEvento);
 
         if (evento == null) {
+            log.warn(
+                "Evento no encontrado. Id={}",
+                idEvento
+            );
             throw new RuntimeException("Evento no encontrado");
         }
         if (!evento.getEstado()
             .equalsIgnoreCase("ACTIVO")) {
-                throw new RuntimeException(
-                    "El evento no se encuentra activo");
-                }
+            log.warn(
+                "Evento {} no está activo. Estado={}",
+                idEvento,
+                evento.getEstado()
+            );
+            throw new RuntimeException(
+                "El evento no se encuentra activo");
+        }
     }
 
     private PpordenDTO convertirADTO(Pporden pedido) {

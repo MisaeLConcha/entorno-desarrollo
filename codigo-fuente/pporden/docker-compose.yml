@@ -17,7 +17,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   pporden:
-    image: misconcha/microservicio-pporden:v10-conchah
+    image: misconcha/microservicio-pporden:v12-conchah
     container_name: api_pporden
     restart: always
 
@@ -31,7 +31,7 @@ services:
       usuario.service.url: http://34.231.120.127:8081
       producto.service.url: http://34.231.120.127:8084
       evento.service.url: http://34.231.120.127:8082
-      stands.service.url: http://34.231.120.127:8083
+      stand.service.url: http://34.231.120.127:8083
       notificacion.service.url: http://100.52.12.161:8090
       pagos.service.url: http://100.52.12.161:8087
 
