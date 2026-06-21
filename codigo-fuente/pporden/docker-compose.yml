@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
 
@@ -31,7 +30,7 @@ services:
       - persistencia_db:/var/lib/mysql
 
   pporden:
-    image: misconcha/microservicio-pporden:v4-conchah
+    image: misconcha/microservicio-pporden:v10-conchah
     container_name: api_pporden
     restart: always
 
