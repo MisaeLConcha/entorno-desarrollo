@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PedidoItemCreateDTO {
-
+    //para evitar proximo q estado sea listo antes, o "sdjhfsd" etc.
     @NotNull(message = "El idProducto es obligatorio")
     private Long idProducto;
 

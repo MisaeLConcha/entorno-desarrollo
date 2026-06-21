@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface PpordenRepository extends JpaRepository<Pporden, Long> {
 
-    List<Pporden> findByEventoId(Long idEvento);
+    List<Pporden> findByIdEvento(Long idEvento);
+    
     List<Pporden> findByEstado(String estado);
 
 }
