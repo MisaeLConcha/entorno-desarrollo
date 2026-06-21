@@ -29,7 +29,6 @@ import java.util.List;
 
 import com.duoc.pporden.exception.ResourceNotFoundException;
 import com.duoc.pporden.exception.BadRequestException;
-import com.duoc.pporden.exception.GlobalExceptionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +119,7 @@ public class PpordenService {
                     pedidoId,
                     pedido.getEstado()
                 );
-                throw new RuntimeException(
+                throw new BadRequestException(
                     "Solo se pueden agregar items a pedidos en estado CREADO");
             }
 
@@ -181,9 +180,21 @@ public class PpordenService {
         Pporden pedido =
             obtenerPedidoPorId(id);
 
-        pedido.setEstado(
-            dto.getEstado().toUpperCase()
-        );
+        String estado =
+        dto.getEstado().toUpperCase();
+
+        if (
+            !estado.equals("CREADO") &&
+            !estado.equals("LISTO") &&
+            !estado.equals("CANCELADO")
+        ) {
+
+            throw new BadRequestException(
+                "Estado no válido"
+            );
+        }
+
+        pedido.setEstado(estado);
 
         Pporden actualizado =
             ppordenRepository.save(pedido);
@@ -206,8 +217,13 @@ public class PpordenService {
 
         PedidoItem item =
             pedidoItemRepository.findById(itemId)
-            .orElseThrow(() ->
-            new RuntimeException("Item no encontrado"));
+            .orElseThrow(() -> {
+                log.warn(
+                    "Item no encontrado. Id={}",
+                    itemId
+                );
+                return new ResourceNotFoundException("Item no encontrado");
+            });
 
         pedido.getItems().remove(item);
         pedidoItemRepository.delete(item);
@@ -247,7 +263,7 @@ public class PpordenService {
                     log.warn(
                     "Item no encontrado."
                 );
-                return new RuntimeException("Item no encontrado");
+                return new ResourceNotFoundException("Item no encontrado");
                 });
         ProductoDTO producto =
             productoClient.getProductoById(
@@ -285,7 +301,7 @@ public class PpordenService {
     public Pporden obtenerPedidoPorId(Long id) {
         return ppordenRepository.findById(id)
         .orElseThrow(() ->
-        new RuntimeException("Pedido no encontrado"));
+        new ResourceNotFoundException("Pedido no encontrado"));
     }
 
     //que existan eventosm
@@ -302,7 +318,7 @@ public class PpordenService {
                 "Evento no encontrado. Id={}",
                 idEvento
             );
-            throw new RuntimeException("Evento no encontrado");
+            throw new ResourceNotFoundException("Evento no encontrado");
         }
         if (!evento.getEstado()
             .equalsIgnoreCase("ACTIVO")) {
@@ -311,7 +327,7 @@ public class PpordenService {
                 idEvento,
                 evento.getEstado()
             );
-            throw new RuntimeException(
+            throw new BadRequestException(
                 "El evento no se encuentra activo");
         }
     }
