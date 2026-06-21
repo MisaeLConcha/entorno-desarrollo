@@ -1,20 +1,7 @@
 
 services:
 
-  pporden-app:
-    image: microservicio-pporden:latest
-    container_name: entorno-desarrollo
-    ports:
-      - "8083:8083"
-    environment:
-      - USUARIO_URL=http://34.231.120.127:8081
-      - PRODUCTO_URL=http://34.231.120.127:8084
-      - EVENTOS_URL=http://34.231.120.127:8082
-      - STANDS_URL=http://34.231.120.127:8083
-      - NOTIFICACION_URL=http://100.52.12.161:8090
-      - PAGOS_URL=http://100.52.12.161:8087
-
-  db-servicio:
+  basedatos-mysql:
     image: mysql:8.0
     container_name: mysql_servidor_dockerorden
     restart: always
@@ -27,7 +14,7 @@ services:
       - "3307:3306"
 
     volumes:
-      - persistencia_db:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
   pporden:
     image: misconcha/microservicio-pporden:v10-conchah
@@ -38,12 +25,18 @@ services:
       - "8085:8085"
 
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db-servicio:3306/universidad_backend
+      SPRING_DATASOURCE_URL: jdbc:mysql://basedatos-mysql:3306/universidad_backend
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
+      usuario.service.url: http://34.231.120.127:8081
+      producto.service.url: http://34.231.120.127:8084
+      evento.service.url: http://34.231.120.127:8082
+      stands.service.url: http://34.231.120.127:8083
+      notificacion.service.url: http://100.52.12.161:8090
+      pagos.service.url: http://100.52.12.161:8087
 
     depends_on:
-      - db-servicio
+      - basedatos-mysql
 
 volumes:
-  persistencia_db:
+  mysql_data:

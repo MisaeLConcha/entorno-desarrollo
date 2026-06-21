@@ -1,23 +1,24 @@
 package com.duoc.pporden.controller;
 
-import com.duoc.pporden.model.PedidoItem;
-import com.duoc.pporden.model.Pporden;
-import com.duoc.pporden.service.PpordenService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import com.duoc.pporden.dto.UsuarioDTO;
 import com.duoc.pporden.dto.ProductoDTO;
 import com.duoc.pporden.dto.StandDTO;
 import com.duoc.pporden.dto.EventoDTO;
-
 import com.duoc.pporden.dto.PpordenDTO;
 import com.duoc.pporden.dto.PedidoItemDTO;
 import com.duoc.pporden.dto.PpordenCreateDTO;
+import com.duoc.pporden.dto.EstadoPedidoDTO;
+import com.duoc.pporden.dto.PedidoItemCreateDTO;
+
+import com.duoc.pporden.service.PpordenService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -28,97 +29,152 @@ public class PpordenController {
     @Autowired
     private PpordenService ppordenService;
 
-    // Crear pedido
-    @PostMapping
-    public Pporden crearPedido(@RequestBody Pporden pedido) {
-        return ppordenService.crearPedido(pedido);
-    }
-
-    // Agregar item a pedido
-    @PostMapping("/{id}/items")
-    public Pporden agregarItemPedido(@PathVariable Long id, @RequestBody PedidoItem item) {
-        return ppordenService.agregarItemPedido(id, item);
-    }
-
-    // Obtener pedido por ID
-    @GetMapping("/{id}")
-    public Pporden obtenerPedidoPorId(@PathVariable Long id) {
-        return ppordenService.obtenerPedidoPorId(id);
-    }
-
-    // Listar pedidos por evento
-    @GetMapping
-    public List<Pporden> listarTodos() {
-        return ppordenService.listarTodos();
-    }
-    @GetMapping("/evento/{eventoId}")
-    public List<Pporden> listarPedidosPorEvento(@PathVariable Long eventoId) {
-        return ppordenService.listarPedidosPorEvento(eventoId);
-    }
-
-    // Confirmar pedido
-    @PutMapping("/{id}/confirmar")
-    public Pporden confirmarPedido(@PathVariable Long id) {
-        return ppordenService.confirmarPedido(id);
-    }
-
-    // Cancelar pedido
-    @PutMapping("/{id}/cancelar")
-    public Pporden cancelarPedido(@PathVariable Long id) {
-        return ppordenService.cancelarPedido(id);
-    }
-
-    // Eliminar item del pedido
-    @DeleteMapping("/{pedidoId}/items/{itemId}")
-    public Pporden eliminarItemPedido(@PathVariable Long pedidoId, @PathVariable Long itemId) {
-        return ppordenService.eliminarItemPedido(pedidoId, itemId);
-    }
-
-    // eliminar el pedido 
-    @DeleteMapping("/{id}")
-    public String eliminarPedido(@PathVariable Long id) {
-        ppordenService.eliminarPedido(id);
-        return "Pedido eliminado correctamente";
-    }
-    //POST con dto
+    //crear pedido
     @PostMapping
     public ResponseEntity<PpordenDTO> crearPedido(
-        @Valid @RequestBody PpordenCreateDTO dto) {
+            @Valid @RequestBody PpordenCreateDTO dto) {
 
-    PpordenDTO creado = ppordenService.crearPedido(dto);
+        PpordenDTO creado =
+            ppordenService.crearPedido(dto);
 
-    return ResponseEntity
+        return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(creado);
     }
 
-    //GET con dto
+    //listar todo
+    @GetMapping
+    public ResponseEntity<List<PpordenDTO>> listarTodos() {
+        return ResponseEntity.ok(
+            ppordenService.listarTodosDTO()
+        );
+    }
+
+    //buscar pedido x id
     @GetMapping("/{id}")
-    public ResponseEntity<PpordenDTO> obtenerPedido(@PathVariable Long id) {
+    public ResponseEntity<PpordenDTO> obtenerPedido(
+        @PathVariable Long id) {
 
-    return ResponseEntity.ok(
+        return ResponseEntity.ok(
             ppordenService.obtenerPedidoDTO(id)
-    );
+        );
     }
 
-    //
-    @GetMapping("/api/v2/usuarios")
-    public UsuarioDTO probarUsuario(@PathVariable Long id) {
-        return ppordenService.obtenerUsuario(id);
+    //listar por evento
+    @GetMapping("/evento/{idEvento}")
+    public ResponseEntity<List<PpordenDTO>>
+    listarPorEvento(
+        @PathVariable Long idEvento) {
+
+        return ResponseEntity.ok(
+                ppordenService.listarPedidosPorEventoDTO(idEvento)
+        );
     }
 
-    @GetMapping("/api/v2/productos")
-        public ProductoDTO probarProducto(@PathVariable Long id) {
-    return ppordenService.obtenerProducto(id);
+    //agregar items
+    @PostMapping("/{pedidoId}/items")
+    public ResponseEntity<PpordenDTO> agregarItem(
+        @PathVariable Long pedidoId,
+        @Valid @RequestBody PedidoItemCreateDTO dto) {
+
+        return ResponseEntity.ok(
+            ppordenService.agregarItemPedido(
+                pedidoId,
+                dto
+            )
+        );
     }
 
-    @GetMapping("/api/v2/eventos")
-        public EventoDTO probarEvento(@PathVariable Long id) {
-    return ppordenService.obtenerEvento(id);
+    //buscar item x id
+    @GetMapping("/items/{itemId}")
+    public ResponseEntity<PedidoItemDTO>
+        obtenerItem(
+            @PathVariable Long itemId) {
+
+        return ResponseEntity.ok(
+            ppordenService.obtenerItemDTO(itemId)
+        );
     }
 
+    //modificar estado
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<PpordenDTO> cambiarEstado(
+        @PathVariable Long id,
+        @Valid @RequestBody EstadoPedidoDTO dto) {
 
+        return ResponseEntity.ok(
+            ppordenService.cambiarEstado(id, dto)
+        );
+    }
 
+    //eliminar items
+    @DeleteMapping("/{pedidoId}/items/{itemId}")
+    public ResponseEntity<PpordenDTO> eliminarItem(
+        @PathVariable Long pedidoId,
+        @PathVariable Long itemId) {
 
+        return ResponseEntity.ok(
+            ppordenService.eliminarItemPedido(
+                pedidoId,
+                itemId
+            )
+        );
+    }
+
+    //elimnar pedido
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> eliminarPedido(
+        @PathVariable Long id) {
+
+        ppordenService.eliminarPedido(id);
+
+        return ResponseEntity.ok(
+            "Pedido eliminado correctamente"
+        );
+    }
+
+    //consulta a ms usuario
+    @GetMapping("/usuarios/{id}")
+    public ResponseEntity<UsuarioDTO>
+    obtenerUsuario(
+        @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+            ppordenService.obtenerUsuario(id)
+        );
+    }
+
+    //consulta a ms productos
+    @GetMapping("/productos/{id}")
+    public ResponseEntity<ProductoDTO>
+    obtenerProducto(
+        @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+            ppordenService.obtenerProducto(id)
+        );
+    }
+
+    //consulta a ms eventos
+    @GetMapping("/eventos/{id}")
+    public ResponseEntity<EventoDTO>
+    obtenerEvento(
+        @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+            ppordenService.obtenerEvento(id)
+        );
+    }
+
+    //consulta a ms stands
+    @GetMapping("/stands/{id}")
+    public ResponseEntity<StandDTO>
+    obtenerStand(
+        @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+            ppordenService.obtenerStand(id)
+        );
+    }
 
 }
