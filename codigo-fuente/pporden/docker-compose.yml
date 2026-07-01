@@ -17,7 +17,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   pporden:
-    image: misconcha/microservicio-pporden:v12-conchah
+    image: misconcha/microservicio-pporden:v13-conchah
     container_name: api_pporden
     restart: always
 
