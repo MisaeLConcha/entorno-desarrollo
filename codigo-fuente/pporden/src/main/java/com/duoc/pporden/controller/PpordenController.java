@@ -30,7 +30,7 @@ import java.util.List;
 
 @Tag(name = "Orden", description = "Operaciones de gestión de Ordenes/Pedidos")
 @RestController
-@RequestMapping("/api/v1/orden")
+@RequestMapping("/api/v3/orden") //versionamiento
 public class PpordenController {
 
     @Autowired

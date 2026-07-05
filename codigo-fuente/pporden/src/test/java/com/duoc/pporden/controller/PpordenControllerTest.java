@@ -58,7 +58,7 @@ class PpordenControllerTest {
         when(service.listarTodosDTO())
             .thenReturn(List.of());
 
-        mockMvc.perform(get("/api/v1/orden"))
+        mockMvc.perform(get("/api/v3/orden"))
             .andExpect(status().isOk());
     }
 
@@ -79,7 +79,7 @@ class PpordenControllerTest {
                 1L
                 );
 
-        mockMvc.perform(post("/api/v1/orden")
+        mockMvc.perform(post("/api/v3/orden")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -93,7 +93,7 @@ class PpordenControllerTest {
                 new ResourceNotFoundException("Pedido no encontrado")
             );
 
-        mockMvc.perform(get("/api/v1/orden/999"))
+        mockMvc.perform(get("/api/v3/orden/999"))
             .andExpect(status().isNotFound());
     }
 }
